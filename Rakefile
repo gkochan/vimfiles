@@ -15,6 +15,11 @@ task :base do
 end
 
 desc "Performs git plugins installation"
+task :fuzzyfinder do
+  system("hg clone http://bitbucket.org/ns9tks/vim-fuzzyfinder/ bundles/fuzzyfinder")
+end
+
+desc "Performs git plugins installation"
 task :git do
   system("git clone git://github.com/tpope/vim-git.git bundles/vim-git")
   system("git clone git://github.com/tpope/vim-fugitive.git bundles/fugitive")
@@ -54,6 +59,9 @@ task :update do
       print "Updating #{entry}: "
       system("cd #{bundle} && git pull")
       system("cd #{bundle} && git submodule update") unless `cd #{bundle} && git submodule`.empty?
+    elsif File.exist?(File.join(bundle, ".hg"))
+      print "Updating #{entry}: "
+      system("cd #{bundle} && hg pull")
     end unless entry =~ /\.+/
   end
 end
