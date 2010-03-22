@@ -1,14 +1,34 @@
 "append bundles
 call pathogen#runtime_prepend_subdirectories(expand('~/.vim/bundles'))
 call pathogen#helptags()
-
+" 
 "Use Vim settings, rather then Vi settings (much better!).
 "This must be first, because it changes other options as a side effect.
 set nocompatible
-
+"turn on line numbers
+set nu
+"set tags dir
+set tags=./tmp/tags,/opt/ruby/lib;
+"use ack instead of grep
+set grepprg=ack
+"map next-search-result and previous-search-result for grep
+map <C-p> :cn<CR>
+map <C-n> :cp<CR>
+"map to expand with and without splits another file in current directory
+map <Leader>e :e <C-R>=expand("%:p:h") . '/'<CR>
+"map <Leader>s :split <C-R>=expand("%:p:h") . '/'<CR>
+"map <Leader>v :vnew <C-R>=expand("%:p:h") . '/'<CR>
 "allow backspacing over everything in insert mode
 set backspace=indent,eol,start
-
+"turn off the blinking cursor in normal mode:
+set gcr=n:blinkon0
+"hide the toolbar:
+set go-=T
+"window transparency
+set transparency=7
+"fill the screen
+set columns=200
+set lines=200
 "store lots of :cmdline history
 set history=1000
 
@@ -170,16 +190,14 @@ function! s:Median(nums)
         return (nums[l/2] + nums[(l/2)-1]) / 2
     endif
 endfunction
-
 "indent settings
 set shiftwidth=4
 set softtabstop=4
 set expandtab
 set autoindent
 
-"folding settings
-set foldmethod=syntax   "fold based on indent
-set foldnestmax=3       "deepest fold is 3 levels
+" set foldmethod=syntax "fold based on indent - slows down macvim like a hell with large files
+set foldnestmax=3       "deepest fold is 2 levels
 set nofoldenable        "dont fold by default
 
 set wildmode=list:longest   "make cmdline tab completion similar to bash
@@ -217,9 +235,9 @@ if has("gui_running")
 
     if has("gui_gnome")
         set term=gnome-256color
-        colorscheme twilight
+        colorscheme ir_black
     else
-        colorscheme twilight
+        colorscheme ir_black
         set guitablabel=%M%t
         set lines=40
         set columns=115
@@ -234,6 +252,32 @@ if has("gui_running")
 endif
 
 nmap <silent> <Leader>p :NERDTreeToggle<CR>
+
+"map Rails plugin find model, controller, etc.
+map <Leader>m :Rmodel 
+map <Leader>c :Rcontroller 
+map <Leader>v :Rview 
+
+"map resizing windows in horizontal mode
+map - <C-W>-
+map + <C-W>+
+"and vertical mode
+map <M>- <C-W><
+map <M>+ <C-W>>
+
+"set current file path to the current bufer's file path
+"change splits with TAB
+map <M-Tab> <C-W><C-W>
+map <M-S-Tab> <C-W>W
+
+"NERDCommenter shortcuts
+nmap \\           <Plug>NERDCommenterInvert
+xmap \\           <Plug>NERDCommenterInvert
+
+" Enable TAB indent and SHIFT-TAB unindent
+vnoremap <silent> <TAB> >gv
+vnoremap <silent> <S-TAB> <gv
+
 
 "make <c-l> clear the highlight as well as redraw
 nnoremap <C-L> :nohls<CR><C-L>
