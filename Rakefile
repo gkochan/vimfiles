@@ -12,6 +12,8 @@ task :base do
   system("git clone git://github.com/tpope/vim-unimpaired.git bundles/unimpaired")
   system("git clone git://github.com/tpope/vim-abolish.git bundles/abolish")
   system("git clone git://github.com/tpope/vim-repeat.git bundles/repeat")
+  system("git clone git://github.com/xolox/vim-session.git bundles/vim-session")
+  system("git clone git://github.com/c9s/gsession.vim.git bundles/gsession")
 end
 
 desc "Performs git plugins installation"

@@ -11,6 +11,8 @@ set nu
 set tags=./tmp/tags,/opt/ruby/lib;
 "use ack instead of grep
 set grepprg=ack
+" remap vim leader from '\' to ','
+let mapleader=","
 "map next-search-result and previous-search-result for grep
 map <C-p> :cn<CR>
 map <C-n> :cp<CR>
@@ -24,11 +26,6 @@ set backspace=indent,eol,start
 set gcr=n:blinkon0
 "hide the toolbar:
 set go-=T
-"window transparency
-set transparency=7
-"fill the screen
-set columns=200
-set lines=200
 "store lots of :cmdline history
 set history=1000
 
@@ -44,6 +41,7 @@ set linebreak   "wrap lines at convenient points
 "statusline setup
 set statusline=%f       "tail of the filename
 
+set fileformat=unix
 "display a warning if fileformat isnt unix
 set statusline+=%#warningmsg#
 set statusline+=%{&ff!='unix'?'['.&ff.']':''}
@@ -230,8 +228,12 @@ set ttymouse=xterm2
 set hidden
 
 if has("gui_running")
+    set guioptions=ac
     "tell the term has 256 colors
     set t_Co=256
+    "fill the screen
+    "set columns=999
+    "set lines=999
 
     if has("gui_gnome")
         set term=gnome-256color
@@ -239,11 +241,17 @@ if has("gui_running")
     else
         colorscheme ir_black
         set guitablabel=%M%t
-        set lines=40
-        set columns=115
+        "set lines=40
+        "set columns=115
     endif
     if has("gui_mac") || has("gui_macvim")
+        "macmenu &File.New\ Tab key=<nop>
+        "map <D-t> <Plug>PeepOpen
         set guifont=Menlo:h15
+        " maximize in fullscreen mode
+        set fuopt=maxvert,maxhorz
+        "window transparency
+        set transparency=7
     endif
     if has("gui_win32") || has("gui_win32s")
         set guifont=Consolas:h12
@@ -251,7 +259,9 @@ if has("gui_running")
     endif
 endif
 
-nmap <silent> <Leader>p :NERDTreeToggle<CR>
+" execute current ruby file
+map <D-r> :rubyf %<CR>
+nmap <silent> <Leader>n :NERDTreeToggle<CR>
 
 "map Rails plugin find model, controller, etc.
 map <Leader>m :Rmodel 
@@ -278,6 +288,8 @@ xmap \\           <Plug>NERDCommenterInvert
 vnoremap <silent> <TAB> >gv
 vnoremap <silent> <S-TAB> <gv
 
+"remove whitespaces shortcut
+nnoremap <silent> <F5> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar>:nohl<CR>:retab<CR>
 
 "make <c-l> clear the highlight as well as redraw
 nnoremap <C-L> :nohls<CR><C-L>
@@ -350,3 +362,53 @@ function! s:HighlightLongLines(width)
         echomsg "Usage: HighlightLongLines [natural number]"
     endif
 endfunction
+
+
+au FileType xml exe ":silent 1,$!tidy --input-xml true --indent yes 2>/dev/null"
+
+
+" Sessions ********************************************************************
+" Creates a session
+function! MakeSession()
+
+ let b:sessiondir = $HOME . "/.vim/sessions" . getcwd()
+ if (filewritable(b:sessiondir) != 2)
+   exe 'silent !mkdir -p ' b:sessiondir
+   redraw!
+ endif
+ let b:sessionfile = b:sessiondir . '/session.vim'
+ exe "mksession! " . b:sessionfile
+
+endfunction
+
+" Updates a session, BUT ONLY IF IT ALREADY EXISTS
+function! UpdateSession()
+
+ let b:sessiondir = $HOME . "/.vim/sessions" . getcwd()
+ let b:sessionfile = b:sessiondir . "/session.vim"
+ if (filereadable(b:sessionfile))
+   exe "mksession! " . b:sessionfile
+   echo "updating session"
+ endif
+
+endfunction
+
+" Loads a session if it exists
+function! LoadSession()
+ if argc() == 0
+  let b:sessiondir = $HOME . "/.vim/sessions" . getcwd()
+  let b:sessionfile = b:sessiondir . "/session.vim"
+  if (filereadable(b:sessionfile))
+    exe 'source ' b:sessionfile
+  else
+    echo "No session loaded."
+  endif
+ else
+  let b:sessionfile = ""
+  let b:sessiondir = ""
+ endif
+endfunction
+
+au VimEnter * :call LoadSession()
+au VimLeave * :call UpdateSession()
+map <leader>ms :call MakeSession()<CR>
